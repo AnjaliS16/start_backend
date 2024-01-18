@@ -1,0 +1,2 @@
+const a= ['apple', 'oranges' , ' ', 'mango', ' ' , 'lemon'];
+console.log(a.map(b=>b.trim()===''?'empty string':b));

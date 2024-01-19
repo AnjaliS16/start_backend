@@ -1,0 +1,7 @@
+const route=require('./route');
+const http = require('http');
+
+
+const server = http.createServer(route);
+
+server.listen(9955);

@@ -1,0 +1,38 @@
+const express=require('express');
+const app= express();
+const bodyParser=require('body-parser');
+const adminrouter=require('./router/admin');
+const shoprouter=require('./router/shop');
+const contactrouter=require('./router/contact');
+const path=require('path');
+const hbs=require('hbs');
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static(path.join(__dirname,'public')));
+app.set("view engine","hbs")
+const hbspath=path.join(__dirname,'views');
+app.set("views",hbspath);
+
+
+app.use(shoprouter);
+app.use(adminrouter);
+app.use(contactrouter);
+//template engine
+
+
+app.post('/success',(req,res)=>{
+    res.send('<h1>form successfully filled</h1>')
+})
+app.post('/cart',(req,res)=>{
+  
+  res.send('hello from cart ')
+    console.log(req.body.productid);
+    
+})
+app.use((req,res)=>{
+    res.status(404).send('oops page not found');
+})
+
+app.listen(4142,()=>{
+    console.log('listening');
+})

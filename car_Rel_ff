@@ -1,0 +1,67 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const { Sequelize, DataTypes } = require('sequelize');
+
+const app = express();
+app.use(bodyParser.json());
+
+const sequelize = new Sequelize('your_database', 'your_username', 'your_password', {
+  host: 'localhost',
+  dialect: 'mysql',
+});
+
+const User = sequelize.define('User', {
+  name: DataTypes.STRING,
+});
+
+const Product = sequelize.define('Product', {
+  name: DataTypes.STRING,
+  price: DataTypes.FLOAT,
+});
+
+const Cart = sequelize.define('Cart', {
+  quantity: DataTypes.INTEGER,
+});
+
+User.belongsToMany(Product, { through: Cart });
+Product.belongsToMany(User, { through: Cart });
+
+sequelize.sync({ force: true }).then(() => {
+  console.log('Database and tables created!');
+});
+
+app.post('/add-to-cart', async (req, res) => {
+  try {
+    const { userId, productId, quantity } = req.body;
+    const user = await User.findByPk(userId);
+    const product = await Product.findByPk(productId);
+
+    if (!user || !product) {
+      return res.status(404).json({ error: 'User or product not found' });
+    }
+
+    await user.addProduct(product, { through: { quantity } });
+    res.status(201).json({ message: 'Product added to cart successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/remove-from-cart', async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+    const user = await User.findByPk(userId);
+    const product = await Product.findByPk(productId);
+
+    if (!user || !product) {
+      return res.status(404).json({ error: 'User or product not found' });
+    }
+
+    await user.removeProduct(product);
+    res.status(200).json({ message: 'Product removed from cart successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});

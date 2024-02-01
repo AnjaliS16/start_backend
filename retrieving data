@@ -1,0 +1,77 @@
+const mysql=require('mysql2/promise');
+class productmodel{
+    constructor(){
+        this.pool=mysql.createPool({
+           
+                host: "localhost",
+                user: "root",
+                password: "",
+                database: "anjali"
+            });
+         }
+         addproducts(title,price){
+            return this.pool.getConnection()
+            .then(connection=>{
+                console.log('inserted')
+              return connection.query('insert into products(title,price)values(?,?)',[title,price])
+                
+                .then((result)=>{
+                    console.log(result.insertedId)
+                    return result.insertedId;
+                })
+
+            })
+            .catch((error)=>{
+                  console.log(error);
+            })
+         }
+         deleteproducts(id){
+            return this.pool.getConnection()
+            .then(connection=>{
+                console.log('delete');
+                connection.query('delete from products where id=?',[id])
+               
+
+            })
+            .catch((error)=>{
+                  console.log(error);
+            })
+         }
+
+         updateproducts(utitle,uprice,id){
+            return this.pool.getConnection()
+            .then(connection=>{
+                console.log('update');
+              return connection.query('update products set title=?,price=? where id=?',[utitle,uprice,id])
+                
+
+            })
+            .catch((error)=>{
+                  console.log(error);
+            })
+         }
+
+         getproducts(){
+            return this.pool.getConnection()
+            .then(connection=>{
+                console.log('get')
+                    return connection.query('select * from products');
+                  })
+                 
+                  .catch(error => {
+                    console.log(error);
+                    throw error; // Propagate the error
+                  });
+              
+         }
+
+
+
+
+
+
+
+
+    
+}
+module.exports=productmodel;
